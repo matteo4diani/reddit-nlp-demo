@@ -36,14 +36,9 @@ import seaborn
 ##################
 
 def get_pos_tag_count(text : str) -> dict[str, float]:
-    lower_case = text.lower()
-    tokens = nltk.word_tokenize(lower_case)
-    tags = nltk.pos_tag(tokens)
+    tags = nltk.pos_tag(nltk.word_tokenize(text.lower()))
     counts = Counter(tag for word, tag in tags)
-    total = sum(counts.values(), 0.0)
-    normalized_counts = {k: v / total for k, v in counts.items()}
     return counts
-
 
 class PosTagVectorizer(BaseEstimator, TransformerMixin):
     """
@@ -155,12 +150,14 @@ class UsernameVectorizer(BaseEstimator, TransformerMixin):
     Transforms a list of usernames in a matrix of character counts (case sensitive), adding the total length of the username as last column.
     Uses DictVectorizer by default.
     """
-    def __init__(self, vectorizer=None. ):
+    def __init__(self, vectorizer=None, ngram_range=(1,1), lowercase=True):
         super().__init__()
         if vectorizer:
             self.vectorizer = vectorizer
         else:
-            self.vectorizer = CountVectorizer(analyzer='char', ngram_range=(1,1), lowercase=False)
+            self.vectorizer = CountVectorizer(analyzer='char',
+                                              ngram_range=ngram_range,
+                                              lowercase=lowercase)
     
     def fit(self, X, y=None):
         self.vectorizer.fit(X.author)
@@ -191,7 +188,8 @@ class BodyVectorizer(BaseEstimator, TransformerMixin):
             self.vectorizer = TfidfVectorizer(max_features = 5000, 
                                               max_df=max_df, 
                                               min_df=min_df, 
-                                              max_features=max_features)
+                                              max_features=max_features,
+                                              ngram_range=ngram_range)
     
     def fit(self, X, y=None):
         self.vectorizer.fit(X.body)
