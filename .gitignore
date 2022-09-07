@@ -129,4 +129,4 @@ dmypy.json
 .pyre/
 
 # SKLearn Pipeline cache folder
-.sklcache
+reddit-gender-classifier/pipeline_cache
