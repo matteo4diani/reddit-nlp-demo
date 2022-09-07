@@ -182,7 +182,7 @@ class BodyVectorizer(BaseEstimator, TransformerMixin):
     Custom vectorizer.
     Wraps a TfidfVectorizer that extracts the 'body' column from a DataFrame
     """
-    def __init__(self, vectorizer=None, ngram_range=(1, 1), max_df=1.0, min_df=1, max_features=None):
+    def __init__(self, vectorizer=None, ngram_range=(1, 1), max_df=1.0, min_df=1, max_features=None, token_pattern=r"(?u)\b\w\w+\b"):
         super().__init__()
         if vectorizer:
             self.vectorizer = vectorizer
@@ -190,11 +190,13 @@ class BodyVectorizer(BaseEstimator, TransformerMixin):
             self.vectorizer = TfidfVectorizer(max_df=max_df, 
                                               min_df=min_df, 
                                               max_features=max_features,
-                                              ngram_range=ngram_range)
+                                              ngram_range=ngram_range,
+                                              token_pattern=token_pattern)
         self.max_df = max_df
         self.min_df = min_df
         self.max_features = max_features
         self.ngram_range = ngram_range
+        self.token_pattern = token_pattern
 
     
     def fit(self, X, y=None):
