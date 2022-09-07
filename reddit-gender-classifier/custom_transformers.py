@@ -158,6 +158,8 @@ class UsernameVectorizer(BaseEstimator, TransformerMixin):
             self.vectorizer = CountVectorizer(analyzer='char',
                                               ngram_range=ngram_range,
                                               lowercase=lowercase)
+            self.ngram_range = ngram_range
+            self.lowercase = lowercase
     
     def fit(self, X, y=None):
         self.vectorizer.fit(X.author)
@@ -184,12 +186,17 @@ class BodyVectorizer(BaseEstimator, TransformerMixin):
         super().__init__()
         if vectorizer:
             self.vectorizer = vectorizer
+            self.max_df = max_df
+            self.min_df = min_df
+            self.max_features = max_features
         else:
-            self.vectorizer = TfidfVectorizer(max_features = 5000, 
-                                              max_df=max_df, 
+            self.vectorizer = TfidfVectorizer(max_df=max_df, 
                                               min_df=min_df, 
                                               max_features=max_features,
                                               ngram_range=ngram_range)
+            self.max_df = max_df
+            self.min_df = min_df
+            self.max_features = max_features
     
     def fit(self, X, y=None):
         self.vectorizer.fit(X.body)
