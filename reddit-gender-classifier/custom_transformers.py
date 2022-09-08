@@ -35,10 +35,11 @@ import seaborn
 # POS Vectorizer #
 ##################
 
-def get_pos_tag_count(text : str) -> dict[str, float]:
+def get_pos_tag_count(text : str) -> dict[str, int]:
     tags = nltk.pos_tag(nltk.word_tokenize(text.lower()))
-    counts = Counter(tag for word, tag in tags)
-    return counts
+    counts = Counter(tag for word, tag in tags if word.isalpha())
+    total = counts.total()
+    return dict((k, v/total) for k, v in counts.items())
 
 class PosTagVectorizer(BaseEstimator, TransformerMixin):
     """
@@ -177,12 +178,19 @@ class UsernameVectorizer(BaseEstimator, TransformerMixin):
 # Text Body Vectorizer #
 ########################
 
+def tokenize(text):
+        lemmatizer = nltk.stem.WordNetLemmatizer()
+        tokens = (word for word in nltk.word_tokenize(text) if len(word) > 2 and word.isalpha())
+        lemmas = (lemmatizer.lemmatize(item) for item in tokens)
+        return lemmas
+
 class BodyVectorizer(BaseEstimator, TransformerMixin):
     """
     Custom vectorizer.
     Wraps a TfidfVectorizer that extracts the 'body' column from a DataFrame
     """
-    def __init__(self, vectorizer=None, ngram_range=(1, 1), max_df=1.0, min_df=1, max_features=None, token_pattern=r"(?u)\b\w\w+\b"):
+    def __init__(self, 
+                 vectorizer=None, ngram_range=(1, 1), max_df=1.0, min_df=1, max_features=None,sublinear_tf=False,tokenizer=None,token_pattern=r"(?u)\b\w\w+\b", stop_words=None):
         super().__init__()
         if vectorizer:
             self.vectorizer = vectorizer
@@ -191,12 +199,18 @@ class BodyVectorizer(BaseEstimator, TransformerMixin):
                                               min_df=min_df, 
                                               max_features=max_features,
                                               ngram_range=ngram_range,
-                                              token_pattern=token_pattern)
+                                              tokenizer=tokenizer,
+                                              token_pattern=token_pattern,
+                                              sublinear_tf=sublinear_tf,
+                                              stop_words=stop_words)
         self.max_df = max_df
         self.min_df = min_df
         self.max_features = max_features
         self.ngram_range = ngram_range
+        self.sublinear_tf = sublinear_tf
+        self.tokenizer = tokenizer
         self.token_pattern = token_pattern
+        self.stop_words = stop_words
 
     
     def fit(self, X, y=None):
