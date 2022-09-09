@@ -1,6 +1,7 @@
 from collections.abc import Iterable, Sequence
 from collections import Counter
 from collections import defaultdict
+from functools import lru_cache
 import copy
 import enum
 import time
@@ -11,7 +12,9 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy import sparse
 import re
+
 import nltk
+import spacy
 
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.decomposition import TruncatedSVD
@@ -34,12 +37,10 @@ import seaborn
 ##################
 # POS Vectorizer #
 ##################
+nlp = spacy.load("en_core_web_sm")
 
-def get_pos_tag_count(text : str) -> dict[str, int]:
-    tags = nltk.pos_tag(nltk.word_tokenize(text.lower()))
-    counts = Counter(tag for word, tag in tags if word.isalpha())
-    total = counts.total()
-    return dict((k, v/total) for k, v in counts.items())
+def get_pos_tag_count(text : str) -> dict[int, int]:
+    return nlp(text).count_by(spacy.attrs.TAG)
 
 class PosTagVectorizer(BaseEstimator, TransformerMixin):
     """
@@ -181,7 +182,8 @@ class UsernameVectorizer(BaseEstimator, TransformerMixin):
 def tokenize(text):
         lemmatizer = nltk.stem.WordNetLemmatizer()
         tokens = (word for word in nltk.word_tokenize(text) if len(word) > 2 and word.isalpha())
-        lemmas = (lemmatizer.lemmatize(item) for item in tokens)
+        lemmatize = lru_cache(maxsize=50000)(lemmatizer.lemmatize)
+        lemmas = (lemmatize(item) for item in tokens)
         return lemmas
 
 class BodyVectorizer(BaseEstimator, TransformerMixin):

@@ -12,7 +12,8 @@ from matplotlib import pyplot as plt
 from scipy import sparse
 import re
 import nltk
-
+from datetime import datetime
+import csv
 import custom_preprocessing
 
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -94,12 +95,39 @@ def join_ints(x : Iterable[int]):
 #######################
 def get_training_data():
     training_features_dataframe, training_targets_dataframe = get_dataframes_from_csv("data/train_data.csv", 
-                                                                                 "data/train_target.csv")
+                                                                                      "data/train_target.csv")
 
     training_features_dataframe_groupby_author = group_dataframe_by_author(training_features_dataframe)
     training_targets_groupby_author = get_targets_from_dataframe(training_features_dataframe_groupby_author, 
                                                                  training_targets_dataframe)
 
     # We choose to exclude outliers only on the basis of anomalous hourly activity
-    final_features, final_targets = custom_preprocessing.activity_based_outlier_rejection(training_features_dataframe_groupby_author, training_targets_groupby_author)
+    outlier_strategies = {'activity' : custom_preprocessing.activity_based_outlier_rejection}
+    
+    final_features, final_targets = outlier_strategies['activity'](training_features_dataframe_groupby_author,
+                                                                       training_targets_groupby_author)
     return final_features, final_targets
+
+#######################
+# Persist GridCV data #
+#######################
+
+def save_dict_to_disk(results : dict):
+    now = datetime.now()
+    timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
+    pd.DataFrame.from_dict(results).to_csv(f'output/gridsearch_{timestamp}.csv') 
+    
+#########################
+# Persist Final Results #
+#########################
+
+def save_results_to_disk(results : dict):
+    now = datetime.now()
+    timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
+    
+    with open(f'submissions/predictions_{timestamp}.csv', 'w+', newline='') as submission:
+        writer = csv.CsvWriter()
+    
+    pd.DataFrame.from_dict(results).to_csv(f'submissions/predictions_{timestamp}.csv')      
+        
+        
