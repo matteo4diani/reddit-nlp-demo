@@ -82,7 +82,7 @@ def join_strings(x : Iterable[str]):
     """
     Join all elements of a list/iterable of strings with a white-space in-between.
     """
-    return ' '.join(x)
+    return ' '.join(map(lambda i: str(i), x))
 
 def join_ints(x : Iterable[int]):
     """
@@ -108,6 +108,11 @@ def get_training_data():
                                                                        training_targets_groupby_author)
     return final_features, final_targets
 
+def get_test_data():
+    test_features_dataframe = get_dataframes_from_csv("data/test_data.csv")
+    test_features_dataframe_groupby_author = group_dataframe_by_author(test_features_dataframe)
+    return test_features_dataframe_groupby_author
+
 #######################
 # Persist GridCV data #
 #######################
@@ -121,13 +126,10 @@ def save_dict_to_disk(results : dict):
 # Persist Final Results #
 #########################
 
-def save_results_to_disk(results : dict):
+def save_submission_to_disk(test_data, predictions):
     now = datetime.now()
     timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
-    
-    with open(f'submissions/predictions_{timestamp}.csv', 'w+', newline='') as submission:
-        writer = csv.CsvWriter()
-    
-    pd.DataFrame.from_dict(results).to_csv(f'submissions/predictions_{timestamp}.csv')      
+    submission = pd.DataFrame({"author" : test_data.author, "gender" : predictions})
+    submission.to_csv(f'submissions/predictions_{timestamp}.csv', index=False)      
         
         
