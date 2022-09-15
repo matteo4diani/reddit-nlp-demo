@@ -192,7 +192,7 @@ class BodyVectorizer(BaseEstimator, TransformerMixin):
     Wraps a TfidfVectorizer that extracts the 'body' column from a DataFrame
     """
     def __init__(self, 
-                 vectorizer=None, ngram_range=(1, 1), max_df=1.0, min_df=1, max_features=None,sublinear_tf=False,tokenizer=None,token_pattern=r"(?u)\b\w\w+\b", stop_words=None):
+                 vectorizer=None, ngram_range=(1, 1), max_df=1.0, min_df=1, max_features=None,sublinear_tf=False,tokenizer=None,token_pattern=r"(?u)\b\w\w+\b", stop_words=None, analyzer='word'):
         super().__init__()
         if vectorizer:
             self.vectorizer = vectorizer
@@ -202,6 +202,7 @@ class BodyVectorizer(BaseEstimator, TransformerMixin):
                                               max_features=max_features,
                                               ngram_range=ngram_range,
                                               tokenizer=tokenizer,
+                                              analyzer=analyzer,
                                               token_pattern=token_pattern,
                                               sublinear_tf=sublinear_tf,
                                               stop_words=stop_words)
@@ -213,6 +214,7 @@ class BodyVectorizer(BaseEstimator, TransformerMixin):
         self.tokenizer = tokenizer
         self.token_pattern = token_pattern
         self.stop_words = stop_words
+        self.analyzer = analyzer
 
     
     def fit(self, X, y=None):
