@@ -39,7 +39,7 @@ import seaborn
 ##################
 nlp = spacy.load("en_core_web_sm")
 
-def get_pos_tag_count(text : str) -> dict[int, int]:
+def get_pos_tag_count(text : str) -> dict:
     return nlp(text).count_by(spacy.attrs.TAG)
 
 class PosTagVectorizer(BaseEstimator, TransformerMixin):
@@ -70,7 +70,7 @@ class PosTagVectorizer(BaseEstimator, TransformerMixin):
 # Subreddit Vectorizer #
 ########################
 
-def get_subreddit_count(subreddits : str) -> dict[str, int]:
+def get_subreddit_count(subreddits : str) -> dict:
     subs = subreddits.split()
     counts = Counter(subreddit for subreddit in subs)
     return counts
@@ -113,7 +113,7 @@ def to_slug(epoch):
     hour = date.hour
     return f'{ordinal:03}_{weekday.upper()}_{hour:02}'
 
-def get_comment_time_count(comment_times : str) -> dict[str, int]:
+def get_comment_time_count(comment_times : str):
     times = comment_times.split(',')
     slugged_times = map(to_slug, times)
     counts = Counter(time for time in slugged_times)
