@@ -50,7 +50,7 @@ def get_dataframes_from_csv(path_to_features, path_to_targets=None):
     targets_dataframe = pd.read_csv(path_to_targets)
     return features_dataframe, targets_dataframe
 
-def get_features_from_dataframe(features_dataframe) -> tuple[list]:
+def get_features_from_dataframe(features_dataframe) -> tuple:
     """
     Get all feature columns as a tuple of lists from DataFrame object
     """
@@ -60,13 +60,12 @@ def get_features_from_dataframe(features_dataframe) -> tuple[list]:
     created_utc = list(features_dataframe.created_utc)
     return usernames, comments, subreddits, created_utc
 
-def get_targets_from_dataframe(features_dataframe, targets_dataframe) -> list[int]:
+def get_targets_from_dataframe(features_dataframe, targets_dataframe) -> list:
     """
     Get targets as a list from DataFrame object
     """
-    targets_dictionary : dict[str, int] = dict(zip(targets_dataframe.author, 
-                                                   targets_dataframe.gender))
-    targets : list[int] = list(map(lambda a: targets_dictionary[a], features_dataframe.author))
+    targets_dictionary = dict(zip(targets_dataframe.author, targets_dataframe.gender))
+    targets = list(map(lambda a: targets_dictionary[a], features_dataframe.author))
     return targets
 
 def group_dataframe_by_author(features_dataframe):
@@ -78,13 +77,13 @@ def group_dataframe_by_author(features_dataframe):
                          'body':join_strings, 
                          'created_utc': join_ints})
 
-def join_strings(x : Iterable[str]):
+def join_strings(x : Iterable):
     """
     Join all elements of a list/iterable of strings with a white-space in-between.
     """
     return ' '.join(map(lambda i: str(i), x))
 
-def join_ints(x : Iterable[int]):
+def join_ints(x : Iterable):
     """
     Join all elements of a list/iterable of ints with a comma in-between.
     """
